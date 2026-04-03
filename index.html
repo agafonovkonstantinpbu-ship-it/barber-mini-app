@@ -4,56 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberShop</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Безопасная инициализация Telegram (до загрузки тела)
+        window.tg = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.tg = window.Telegram.WebApp;
+                window.tg.ready();
+                window.tg.expand();
+            }
+        } catch (e) {
+            console.log('Telegram не доступен:', e);
+        }
+    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
 </head>
 <body style="font-family: sans-serif; padding: 20px;">
     <h1 style="text-align: center;">💈 BarberShop</h1>
     <p style="text-align: center; color: #666;">Подбор прически с AI</p>
     
-    <button id="openBtn" style="width: 100%; padding: 18px; background: #3390ec; color: white; border: none; border-radius: 12px; font-size: 18px; margin-bottom: 15px;">
+    <button id="openBtn" style="width: 100%; padding: 18px; background: #3390ec; color: white; border: none; border-radius: 12px; font-size: 18px; margin-bottom: 15px; cursor: pointer;">
         ✂️ Подобрать прическу
     </button>
     
     <div id="formBlock" style="display: none;">
         <textarea id="textInput" placeholder="Опишите прическу..." style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; min-height: 100px; margin-bottom: 15px;"></textarea>
-        <button id="sendBtn" style="width: 100%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 10px; font-size: 16px; margin-bottom: 10px;">
+        <button id="sendBtn" style="width: 100%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 10px; font-size: 16px; margin-bottom: 10px; cursor: pointer;">
             🚀 Отправить запрос
         </button>
-        <button id="cancelBtn" style="width: 100%; padding: 12px; background: #e0e0e0; border: none; border-radius: 10px; font-size: 16px;">
+        <button id="cancelBtn" style="width: 100%; padding: 12px; background: #e0e0e0; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
             Отмена
         </button>
     </div>
 
     <script>
-        // Инициализация Telegram (безопасная)
-        var tg = window.Telegram.WebApp || null;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-        }
-        
         // Функция для показа уведомлений
         function showAlert(message) {
-            if (tg && tg.showAlert) {
-                tg.showAlert(message);
-            } else {
+            try {
+                if (window.tg && window.tg.showAlert) {
+                    window.tg.showAlert(message);
+                } else {
+                    alert(message);
+                }
+            } catch (e) {
                 alert(message);
             }
         }
         
         // Кнопка "Подобрать прическу"
-        document.getElementById('openBtn').onclick = function() {
+        document.getElementById('openBtn').addEventListener('click', function() {
             document.getElementById('formBlock').style.display = 'block';
-        };
+        });
         
         // Кнопка "Отмена"
-        document.getElementById('cancelBtn').onclick = function() {
+        document.getElementById('cancelBtn').addEventListener('click', function() {
             document.getElementById('formBlock').style.display = 'none';
             document.getElementById('textInput').value = '';
-        };
+        });
         
         // Кнопка "Отправить запрос"
-        document.getElementById('sendBtn').onclick = function() {
+        document.getElementById('sendBtn').addEventListener('click', function() {
             var text = document.getElementById('textInput').value;
             
             if (!text || text.trim() === '') {
@@ -62,16 +72,20 @@
             }
             
             // Отправляем данные (если в Telegram)
-            if (tg && tg.sendData) {
-                tg.sendData(text);
-                showAlert('✅ Запрос отправлен!');
-            } else {
-                showAlert('✅ Запрос: ' + text + '\n(Запусти в Telegram для отправки боту)');
+            try {
+                if (window.tg && window.tg.sendData) {
+                    window.tg.sendData(text);
+                    showAlert('✅ Запрос отправлен!');
+                } else {
+                    showAlert('✅ Запрос: ' + text + '\n(Запусти в Telegram для отправки боту)');
+                }
+            } catch (e) {
+                showAlert('✅ Запрос: ' + text + '\n(Ошибка отправки: ' + e.message + ')');
             }
             
             document.getElementById('formBlock').style.display = 'none';
             document.getElementById('textInput').value = '';
-        };
+        });
     </script>
 </body>
 </html>
