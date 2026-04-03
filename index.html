@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BarberShop Mini App</title>
+    <title>BarberShop - Подбор прически</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -29,45 +29,107 @@
             margin-bottom: 10px;
         }
         
-        .buttons-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .btn {
+        .btn-main {
+            width: 100%;
             padding: 20px;
             border: none;
             border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            margin-bottom: 20px;
+        }
+        
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+        
+        .form-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 15px;
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
-            background: var(--tg-theme-button-color, #3390ec);
-            color: var(--tg-theme-button-text-color, #ffffff);
+            background: #4CAF50;
+            color: white;
         }
         
-        .btn:active {
-            transform: scale(0.95);
+        .btn-submit:active {
+            opacity: 0.9;
         }
         
-        .btn-secondary {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        .btn-cancel {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: var(--tg-theme-secondary-bg-color, #e0e0e0);
             color: var(--tg-theme-text-color, #000000);
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>💈 BarberShop</h1>
-        <p>Выберите услугу</p>
+        <p>Подбор прически с AI</p>
     </div>
     
-    <div class="buttons-grid">
-        <button class="btn" onclick="showMessage('Запись')">📅 Запись</button>
-        <button class="btn btn-secondary" onclick="showMessage('Прическа')">✂️ Прическа</button>
-        <button class="btn btn-secondary" onclick="showMessage('О нас')">ℹ️ О нас</button>
-        <button class="btn btn-secondary" onclick="showMessage('Контакты')">📞 Контакты</button>
+    <button class="btn-main" onclick="showForm()">
+        ✂️ Подобрать прическу
+    </button>
+    
+    <div id="formContainer" class="form-container">
+        <textarea 
+            id="requestText" 
+            placeholder="Опишите, какую прическу вы хотите. Например:
+- Короткая стрижка с фейдом
+- Удлиненные волосы сверху
+- Борода и усы
+- Современный стиль"
+        ></textarea>
+        
+        <button class="btn-submit" onclick="submitRequest()">
+            🚀 Отправить запрос
+        </button>
+        
+        <button class="btn-cancel" onclick="hideForm()">
+            Отмена
+        </button>
     </div>
     
     <script>
@@ -75,8 +137,37 @@
         tg.ready();
         tg.expand();
         
-        function showMessage(action) {
-            tg.showAlert('Кнопка: ' + action + '\n(Функционал в разработке)');
+        const user = tg.initDataUnsafe.user;
+        
+        function showForm() {
+            document.getElementById('formContainer').classList.add('active');
+            tg.expand();
+        }
+        
+        function hideForm() {
+            document.getElementById('formContainer').classList.remove('active');
+            document.getElementById('requestText').value = '';
+        }
+        
+        function submitRequest() {
+            const request = document.getElementById('requestText').value.trim();
+            
+            if (!request) {
+                tg.showAlert('Пожалуйста, опишите желаемую прическу');
+                return;
+            }
+            
+            // Отправляем данные боту
+            tg.sendData(JSON.stringify({
+                action: 'hairstyle',
+                request: request,
+                userId: user?.id,
+                username: user?.username,
+                firstName: user?.first_name
+            }));
+            
+            tg.showAlert('✅ Запрос отправлен!\n\nСейчас мы подберем варианты причесок.');
+            hideForm();
         }
     </script>
 </body>
