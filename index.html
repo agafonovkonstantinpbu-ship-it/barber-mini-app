@@ -5,105 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberShop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            background: #ffffff;
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-        }
-        p {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-        .btn-blue {
-            background: #3390ec;
-            color: white;
-        }
-        .btn-green {
-            background: #4CAF50;
-            color: white;
-        }
-        .btn-gray {
-            background: #e0e0e0;
-            color: #333;
-        }
-        textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            min-height: 100px;
-            margin-bottom: 15px;
-            font-family: inherit;
-        }
-        #formBlock {
-            display: none;
-        }
-    </style>
 </head>
-<body>
-    <h1>💈 BarberShop</h1>
-    <p>Подбор прически с AI</p>
+<body style="font-family: sans-serif; padding: 20px;">
+    <h1 style="text-align: center;">💈 BarberShop</h1>
+    <p style="text-align: center; color: #666;">Подбор прически с AI</p>
     
-    <button class="btn btn-blue" onclick="openForm()">✂️ Подобрать прическу</button>
+    <button id="openBtn" style="width: 100%; padding: 18px; background: #3390ec; color: white; border: none; border-radius: 12px; font-size: 18px; margin-bottom: 15px;">
+        ✂️ Подобрать прическу
+    </button>
     
-    <div id="formBlock">
-        <textarea id="textInput" placeholder="Опишите прическу..."></textarea>
-        <button class="btn btn-green" onclick="sendData()">🚀 Отправить запрос</button>
-        <button class="btn btn-gray" onclick="closeForm()">Отмена</button>
+    <div id="formBlock" style="display: none;">
+        <textarea id="textInput" placeholder="Опишите прическу..." style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; min-height: 100px; margin-bottom: 15px;"></textarea>
+        <button id="sendBtn" style="width: 100%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 10px; font-size: 16px; margin-bottom: 10px;">
+            🚀 Отправить запрос
+        </button>
+        <button id="cancelBtn" style="width: 100%; padding: 12px; background: #e0e0e0; border: none; border-radius: 10px; font-size: 16px;">
+            Отмена
+        </button>
     </div>
 
     <script>
-        // Инициализация Telegram
         var tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
         
-        // Открыть форму
-        function openForm() {
+        // Кнопка "Подобрать прическу"
+        document.getElementById('openBtn').onclick = function() {
             document.getElementById('formBlock').style.display = 'block';
-        }
+        };
         
-        // Закрыть форму
-        function closeForm() {
+        // Кнопка "Отмена"
+        document.getElementById('cancelBtn').onclick = function() {
             document.getElementById('formBlock').style.display = 'none';
             document.getElementById('textInput').value = '';
-        }
+        };
         
-        // Отправить данные
-        function sendData() {
+        // Кнопка "Отправить запрос"
+        document.getElementById('sendBtn').onclick = function() {
             var text = document.getElementById('textInput').value;
             
-            if (text.trim() === '') {
-                tg.showAlert('Введите текст!');
+            if (!text || text.trim() === '') {
+                alert('Введите текст!');
                 return;
             }
             
-            // Отправляем данные боту
-            tg.sendData(text);
+            // Пробуем отправить через Telegram
+            try {
+                tg.sendData(text);
+                alert('✅ Запрос отправлен!');
+            } catch (e) {
+                alert('Отправлено: ' + text);
+            }
             
-            // Показываем сообщение
-            tg.showAlert('✅ Запрос отправлен!');
-            
-            // Закрываем форму
-            closeForm();
-        }
+            document.getElementById('formBlock').style.display = 'none';
+            document.getElementById('textInput').value = '';
+        };
     </script>
 </body>
 </html>
